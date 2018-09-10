@@ -33,7 +33,11 @@ scaffolding_load() {
     exit_with "Failed to load Wrapper Scaffolding from $lib" 17
   fi
 
-  # @afiune do we need another load function? 'scaffolding_load'
+  # Load this file again to override the 'scaffolding_load' function
+  lib="$(pkg_path_for $pkg_scaffolding)/lib/scaffolding.sh"
+  if ! source "$lib"; then
+    exit_with "Failed to load Wrapper Scaffolding from $lib" 17
+  fi
 }
 
 #
