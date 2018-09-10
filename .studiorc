@@ -1,0 +1,52 @@
+#!/bin/bash
+# shellcheck shell=bash
+
+# Source ci-studio-common helpers
+hab pkg install chef/ci-studio-common
+source "$(hab pkg path chef/ci-studio-common)/bin/studio-common"
+
+# Welcome Message
+getting_started <<GETTING_STARTED
+
+Welcome to the Habitat-based development environment for the Go scaffolding wrapper!
+
+  $(yellow "=== Getting Started ===")
+
+To build a package run:
+
+  # build
+
+To build a simple Go application to test the latest scaffolding-go wrapper:
+
+  # build_go_app
+
+For faster development cycles use the following helper to build and test a new scaffolding-go package:
+
+  # build_and_test
+
+GETTING_STARTED
+
+# build_and_test will build the scaffolding-go and then test it by running a simple Go app
+function build_and_test(){
+  yellow "* Building $HAB_ORIGIN/scaffolding-go package.\n"
+  pushd /src >/dev/null
+    build
+  popd >/dev/null
+  echo ""
+  build_go_app
+}
+
+# build_go_app builds a simple Go application to test the latest installed scaffolding-go pkg
+function build_go_app() {
+  local pkg_path=$(hab pkg path $HAB_ORIGIN/scaffolding-go 2>/dev/null)
+  if [[ "$pkg_path" == "" ]]; then
+    echo -e "$(yellow "WARN:") Package $HAB_ORIGIN/scaffolding-go not found, building a fresh one."
+    build
+    pkg_path=$(hab pkg path $HAB_ORIGIN/scaffolding-go 2>/dev/null)
+    echo ""
+  fi
+  yellow "* Building test Go application using latest installed $HAB_ORIGIN/scaffolding-go package."
+  echo -e "$(green "  PKG_PATH:") $pkg_path"
+  echo ""
+  build /src/test/go-app
+}
