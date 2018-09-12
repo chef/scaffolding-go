@@ -9,6 +9,13 @@ github:
 habitat_packages:
   - scaffolding-go
 
+promote:
+  channels:
+    - unstable
+    - stable
+  actions:
+    - built_in:promote_habitat_packages
+
 pipelines:
   - verify:
       description: Pull Request validation tests
