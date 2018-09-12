@@ -18,7 +18,7 @@ To build a package run:
 
 To build a simple Go application to test the latest scaffolding-go wrapper:
 
-  # build_go_app
+  # build_simple_go_app
 
 For faster development cycles use the following helper to build and test a new scaffolding-go package:
 
@@ -34,17 +34,36 @@ function build_and_test(){
     local rc=$?
   popd >/dev/null
 
-  # Verify the exist code from the package build above
+  # Verify the exist code from the package built above
   if [[ $rc != 0 ]]; then
     return $rc;
   fi
 
+  # Build a simple Go app
   echo ""
-  build_go_app
+  build_simple_go_app
+  rc=$?
+  if [[ $rc != 0 ]]; then
+    return $rc;
+  fi
+
+  # Test that the app was built and installed and can be run
+  #
+  # Output should look like:
+  # => go-app: Hello Chef Friends! :) v.20180912.161904
+  echo ""
+  yellow "* Running simple Go application. (go-app)\n"
+  go-app
+  rc=$?
+  if [[ $rc != 0 ]]; then
+    return $rc;
+  fi
+
+  # Build a multi-binary Go app
 }
 
-# build_go_app builds a simple Go application to test the latest installed scaffolding-go pkg
-function build_go_app() {
+# build_simple_go_app builds a simple Go application to test the latest installed scaffolding-go pkg
+function build_simple_go_app() {
   local pkg_path=$(hab pkg path $HAB_ORIGIN/scaffolding-go 2>/dev/null)
   if [[ "$pkg_path" == "" ]]; then
     echo -e "$(yellow "WARN:") Package $HAB_ORIGIN/scaffolding-go not found, building a fresh one."
@@ -52,16 +71,25 @@ function build_go_app() {
     pkg_path=$(hab pkg path $HAB_ORIGIN/scaffolding-go 2>/dev/null)
     echo ""
   fi
-  yellow "* Building test Go application using latest installed $HAB_ORIGIN/scaffolding-go package."
+  yellow "* Building simple Go application using latest installed $HAB_ORIGIN/scaffolding-go package."
   echo -e "$(green "  PKG_PATH:") $pkg_path"
   echo ""
   build /src/test/go-app
+  local rc=$?
+  if [[ $rc != 0 ]]; then
+    return $rc;
+  fi
+
+  # Installing latest go-app
+  echo ""
+  install_latest_go_app
 }
 
+# install_latest_go_app installs the latest go-app built
 function install_latest_go_app() {
   local last_build=$(ls -1tr results/${HAB_ORIGIN}-go-app-* | tail -1)
   if [[ "$last_build" == "" ]]; then
-    echo -e "$(red "ERROR:") No 'go-app' builds found. Build one with: 'build_go_app'"
+    echo -e "$(red "ERROR:") No 'go-app' builds found. Build one with: 'build_simple_go_app'"
   else
     hab pkg install -b -f $last_build
   fi
