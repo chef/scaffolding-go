@@ -7,8 +7,6 @@ steps:
     env:
       HAB_ORIGIN: chef
       HAB_STUDIO_SUP: false
-    agents:
-      queue: 'docker-privileged'
     timeout_in_minutes: 10
     retry:
       automatic:
