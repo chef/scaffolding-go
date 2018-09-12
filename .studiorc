@@ -60,20 +60,51 @@ function build_and_test(){
   fi
 
   # Build a multi-binary Go app
+  echo ""
+  build_multi_binary_go_app
+  rc=$?
+  if [[ $rc != 0 ]]; then
+    return $rc;
+  fi
+
+  # Test that the app was built and installed and can be run
+  #
+  # ------ Binary 1
+  # Output should look like:
+  # => multi-binary: Starting app. (v.20180912.170025)
+  #    libs: complex stuff happening.
+  #    libs: complex stuff happening.
+  #    libs: complex stuff happening.
+  #    libs: complex stuff happening.
+  #    libs: complex stuff happening.
+  #    ^C
+  echo ""
+  yellow "* Running multi-binary Go application. (bin1)\n"
+  # TODO @afiune how can we start this bin1 and check it is running?
+  #bin1
+  rc=$?
+  if [[ $rc != 0 ]]; then
+    return $rc;
+  fi
+
+  # ------ Binary 2
+  # Output should look like:
+  # => multi-binary: Running app. (v.20180912.165542)
+  #    libs: complex stuff happening.
+  echo ""
+  yellow "* Running multi-binary Go application. (bin2)\n"
+  bin2
+  rc=$?
+  if [[ $rc != 0 ]]; then
+    return $rc;
+  fi
 }
 
 # build_simple_go_app builds a simple Go application to test the latest installed scaffolding-go pkg
 function build_simple_go_app() {
-  local pkg_path=$(hab pkg path $HAB_ORIGIN/scaffolding-go 2>/dev/null)
-  if [[ "$pkg_path" == "" ]]; then
-    echo -e "$(yellow "WARN:") Package $HAB_ORIGIN/scaffolding-go not found, building a fresh one."
-    build
-    pkg_path=$(hab pkg path $HAB_ORIGIN/scaffolding-go 2>/dev/null)
-    echo ""
-  fi
+  local pkg_path=$(verify_or_install_scaffolding_go)
   yellow "* Building simple Go application using latest installed $HAB_ORIGIN/scaffolding-go package."
-  echo -e "$(green "  PKG_PATH:") $pkg_path"
-  echo ""
+  echo -e "$(green "  PKG_PATH:") $pkg_path\n"
   build /src/test/go-app
   local rc=$?
   if [[ $rc != 0 ]]; then
@@ -85,11 +116,47 @@ function build_simple_go_app() {
   install_latest_go_app
 }
 
-# install_latest_go_app installs the latest go-app built
+# install_latest_go_app install the latest go-app built
 function install_latest_go_app() {
   local last_build=$(ls -1tr results/${HAB_ORIGIN}-go-app-* | tail -1)
   if [[ "$last_build" == "" ]]; then
     echo -e "$(red "ERROR:") No 'go-app' builds found. Build one with: 'build_simple_go_app'"
+  else
+    hab pkg install -b -f $last_build
+  fi
+}
+
+# build_multi_binary_go_app builds a multi-binary Go application to test the latest installed scaffolding-go pkg
+function build_multi_binary_go_app() {
+  local pkg_path=$(verify_or_install_scaffolding_go)
+  yellow "* Building multi-binary Go application using latest installed $HAB_ORIGIN/scaffolding-go package."
+  echo -e "$(green "  PKG_PATH:") $pkg_path\n"
+  build /src/test/repo/components/multi-binary
+  local rc=$?
+  if [[ $rc != 0 ]]; then
+    return $rc;
+  fi
+
+  # Installing latest multi-binary Go application
+  echo ""
+  install_latest_multi_binary_app
+}
+
+function verify_or_install_scaffolding_go() {
+  local pkg_path=$(hab pkg path $HAB_ORIGIN/scaffolding-go 2>/dev/null)
+  if [[ "$pkg_path" == "" ]]; then
+    echo -e "$(yellow "WARN:") Package $HAB_ORIGIN/scaffolding-go not found, building a fresh one."
+    build
+    pkg_path=$(hab pkg path $HAB_ORIGIN/scaffolding-go 2>/dev/null)
+  fi
+  echo $pkg_path
+}
+
+# install_latest_multi_binary_app install the latest multi-binary Go application built
+function install_latest_multi_binary_app() {
+  local last_build=$(ls -1tr results/${HAB_ORIGIN}-multi-binary-* | tail -1)
+  if [[ "$last_build" == "" ]]; then
+    echo -e "$(red "ERROR:") No 'multi-binary' builds found. Build one with: 'build_multi_binary_go_app'"
   else
     hab pkg install -b -f $last_build
   fi
