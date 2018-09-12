@@ -22,7 +22,7 @@ export PATH="$PATH:$GOBIN"
 
 # Sets the default value when '$scaffolding_go_import_path' is not set
 #
-# This will be useful for multi-binary and/or milti-service projects, you can have a combination
+# This will be useful for multi-binary and/or multi-service projects, you can have a combination
 # of binaries you can build in conjuction with the scaffolding variable '$scaffolding_go_binary_list'
 if [[ ! $scaffolding_go_import_path ]]; then
   export scaffolding_go_import_path=$scaffolding_go_base_path/$pkg_name
@@ -43,7 +43,6 @@ scaffolding_go_build() {
 
   pushd "$scaffolding_go_pkg_path" >/dev/null
     if [[ $GO_LDFLAGS ]]; then
-      # check
       go_cmd="$go_cmd --ldflags '${GO_LDFLAGS}'"
     fi
 

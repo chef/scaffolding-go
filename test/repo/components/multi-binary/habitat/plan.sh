@@ -10,7 +10,6 @@ pkg_upstream_url="https://github.com/chef/scaffolding-go/test/repo/components/mu
 # scaffolding-go built with your origin so we can test it before releasing
 pkg_scaffolding=$HAB_ORIGIN/scaffolding-go
 scaffolding_go_base_path=github.com/chef
-# nested go-app in repo
 scaffolding_go_repo_name=scaffolding-go
 scaffolding_go_import_path="${scaffolding_go_base_path}/$scaffolding_go_repo_name/test/repo/components/${pkg_name}"
 # multi-binary projects
