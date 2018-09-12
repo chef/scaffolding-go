@@ -31,7 +31,14 @@ function build_and_test(){
   yellow "* Building $HAB_ORIGIN/scaffolding-go package.\n"
   pushd /src >/dev/null
     build
+    local rc=$?
   popd >/dev/null
+
+  # Verify the exist code from the package build above
+  if [[ $rc != 0 ]]; then
+    return $rc;
+  fi
+
   echo ""
   build_go_app
 }

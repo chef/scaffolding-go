@@ -1,0 +1,32 @@
+---
+# Slack channel in Chef Software slack to send notifications about build failures, etc
+slack:
+  notify_channel: a2-notify
+
+github:
+  delete_branch_on_merge: true
+
+habitat_packages:
+  - scaffolding-go
+
+promote:
+  channels:
+    - unstable
+    - stable
+  actions:
+    - built_in:promote_habitat_packages
+
+pipelines:
+  - verify:
+      description: Pull Request validation tests
+
+merge_actions:
+  - built_in:trigger_habitat_package_build:
+      post_commit: true
+      ignore_labels:
+        - "Habitat: Skip Build"
+
+promote:
+  action:
+    - bash:.expeditor/promote-hab-pkg.sh:
+        post_commit: true
