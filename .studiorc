@@ -12,13 +12,26 @@ Welcome to the Habitat-based development environment for the Go scaffolding wrap
 
   $(yellow "=== Getting Started ===")
 
-To build a package run:
+To build a scaffolding-go package run:
 
   # build
 
-To build a simple Go application to test the latest scaffolding-go wrapper:
+To test the latest scaffolding-go wrapper:
 
-  # build_simple_go_app
+  $(green "* Build a simple Go application:")
+
+    # build_simple_go_app
+    # go-app
+
+  $(green "* Build a multi-binary Go application:")
+
+    # build_multi_binary_go_app
+
+    1) Run cli binary
+        # cli
+
+    2) Serve app binary. (Recommended to start with hab-svc commands)
+        # serve-app
 
 For faster development cycles use the following helper to build and test a new scaffolding-go package:
 
@@ -34,7 +47,7 @@ function build_and_test(){
     local rc=$?
   popd >/dev/null
 
-  # Verify the exist code from the package built above
+  # Verify the exit code of the package built above
   if [[ $rc != 0 ]]; then
     return $rc;
   fi
@@ -69,36 +82,79 @@ function build_and_test(){
 
   # Test that the app was built and installed and can be run
   #
-  # ------ Binary 1
+  # ------ Binary 1 (server)
   # Output should look like:
-  # => multi-binary: Starting app. (v.20180912.170025)
-  #    libs: complex stuff happening.
-  #    libs: complex stuff happening.
-  #    libs: complex stuff happening.
-  #    libs: complex stuff happening.
-  #    libs: complex stuff happening.
-  #    ^C
+  # => multi-binary: Starting app listening on ':9090'. (v.20180913.111142)
+  #
+  # When requests come in, the response should look like:
+  # => {"req_num":1,"status":"processed"}
   echo ""
-  yellow "* Running multi-binary Go application. (bin1)\n"
-  # TODO @afiune how can we start this bin1 and check it is running?
-  #bin1
+  local response=""
+  verify_or_start_supervisor
+  svc_running $HAB_ORIGIN/multi-binary
+  rc=$?
+  if [[ $rc == 0 ]]; then
+    yellow "* The multi-binary Go application is already running. (serve-app)"
+    green "* To see the logs of the service run 'sup-log'.\n"
+  else
+    start_multi_binary_serve_app
+  fi
+
+  response=$(curl_multi_binary_serve_app)
   rc=$?
   if [[ $rc != 0 ]]; then
     return $rc;
   fi
+  echo $response | jq .
 
-  # ------ Binary 2
+  # ------ Binary 2 (cli)
   # Output should look like:
-  # => multi-binary: Running app. (v.20180912.165542)
+  # => multi-binary: Running app through the cli. (v.20180912.165542)
   #    libs: complex stuff happening.
   echo ""
-  yellow "* Running multi-binary Go application. (bin2)\n"
-  bin2
+  yellow "* Running multi-binary Go application. (cli)\n"
+  cli
   rc=$?
   if [[ $rc != 0 ]]; then
     return $rc;
   fi
 }
+
+# start_multi_binary_serve_app starts the multi-binary go application through hab-svc commands
+# run 'sup-log' to see the logs
+function start_multi_binary_serve_app() {
+  yellow "* Starting multi-binary Go application. (serve-app)\n"
+  hab svc load $HAB_ORIGIN/multi-binary -s at-once
+  hab start $HAB_ORIGIN/multi-binary
+  wait_or_fail_for_svc_to_load $HAB_ORIGIN/multi-binary 30
+}
+
+# verify_or_start_supervisor verifies if the supervisor is running, if not, it starts it
+function verify_or_start_supervisor(){
+  hab sup status 2>/dev/null 1>&2
+  if [[ $? == 0 ]]; then
+    return 0
+  fi
+  sup-run
+  wait_for_success hab sup status
+}
+
+# curl_multi_binary_serve_app sends a curl request to the running multi-binary go application
+function curl_multi_binary_serve_app() {
+  local response=""
+  local rc=0
+  local address="localhost:9090"
+  install_if_missing core/curl curl
+  install_if_missing core/jq-static jq
+  response=$(curl $address 2>/dev/null)
+  rc=$?
+  if [[ $rc != 0 ]]; then
+    echo "Unable to curl serve app. ($address)"
+    return $rc;
+  fi
+  echo $response
+}
+
 
 # build_simple_go_app builds a simple Go application to test the latest installed scaffolding-go pkg
 function build_simple_go_app() {
@@ -142,6 +198,7 @@ function build_multi_binary_go_app() {
   install_latest_multi_binary_app
 }
 
+# verify_or_install_scaffolding_go verifies if the wrapper scaffolding-go is installed, if not, it builds it and installs it
 function verify_or_install_scaffolding_go() {
   local pkg_path=$(hab pkg path $HAB_ORIGIN/scaffolding-go 2>/dev/null)
   if [[ "$pkg_path" == "" ]]; then

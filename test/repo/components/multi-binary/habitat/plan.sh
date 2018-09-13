@@ -14,8 +14,8 @@ scaffolding_go_repo_name=scaffolding-go
 scaffolding_go_import_path="${scaffolding_go_base_path}/$scaffolding_go_repo_name/test/repo/components/${pkg_name}"
 # multi-binary projects
 scaffolding_go_binary_list=(
-  "${scaffolding_go_import_path}/cmd/bin1"
-  "${scaffolding_go_import_path}/cmd/bin2"
+  "${scaffolding_go_import_path}/cmd/serve-app"
+  "${scaffolding_go_import_path}/cmd/cli"
 )
 
 

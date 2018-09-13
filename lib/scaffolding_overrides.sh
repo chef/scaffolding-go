@@ -61,7 +61,7 @@ scaffolding_go_before() {
   # Initialize the Go Workspace package path if we are tryng to build the
   # package from local /src, that is when there is no $pkg_source set.
   #
-  # @afiune we are ovveriding this function since we must link the entire
+  # @afiune we are overriding this function since we must link the entire
   # repository '/src' to the Go workspace to access other files/components
   # or files. (Multi-service projects)
   if [ ! $pkg_source ] && [ ! -e $scaffolding_go_pkg_path ]; then
