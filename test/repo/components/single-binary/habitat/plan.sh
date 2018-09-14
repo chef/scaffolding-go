@@ -14,3 +14,8 @@ scaffolding_go_repo_name=scaffolding-go
 scaffolding_go_import_path="${scaffolding_go_base_path}/$scaffolding_go_repo_name/test/repo/components/${pkg_name}"
 # multi-binary projects
 #scaffolding_go_binary_list=()
+
+# inject build tags to the compiler
+scaffolding_go_build_tags=(tag1 tag2 tag3)
+# switch the tags to this below and see the new message that the binary will display 
+# scaffolding_go_build_tags=(secret)

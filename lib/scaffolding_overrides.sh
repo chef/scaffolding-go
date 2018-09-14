@@ -39,13 +39,21 @@ fi
 # have projects that are multi-binary and/or multi-service
 # TODO @afiune Support Makefile's
 scaffolding_go_build() {
+  # We se this command since it will build and install the binaries
+  # automatically into the GOBIN directory
   local go_cmd="go install"
 
-  pushd "$scaffolding_go_pkg_path" >/dev/null
-    if [[ $GO_LDFLAGS ]]; then
-      go_cmd="$go_cmd --ldflags '${GO_LDFLAGS}'"
-    fi
+  # Inject Go ldflags
+  if [[ $GO_LDFLAGS ]]; then
+    go_cmd="$go_cmd --ldflags '${GO_LDFLAGS}'"
+  fi
 
+  # Inject Go build tags
+  if [[ $scaffolding_go_build_tags ]]; then
+    go_cmd="$go_cmd --tags '${scaffolding_go_build_tags[@]}'"
+  fi
+
+  pushd "$scaffolding_go_pkg_path" >/dev/null
     if [[ $scaffolding_go_binary_list ]]; then
       for binary in "${scaffolding_go_binary_list[@]}"; do
         eval "$go_cmd $binary"

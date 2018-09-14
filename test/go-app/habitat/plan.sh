@@ -13,6 +13,8 @@ scaffolding_go_base_path=github.com/chef
 # nested go-app in repo
 scaffolding_go_repo_name=scaffolding-go
 scaffolding_go_import_path="${scaffolding_go_base_path}/$scaffolding_go_repo_name/test/${pkg_name}"
+# test build tags
+scaffolding_go_build_tags=(dev)
 # multi-binary projects
 #scaffolding_go_binary_list=()
 

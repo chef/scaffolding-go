@@ -11,6 +11,9 @@ The following variable have been added or modified:
 #### `scaffolding_go_import_path` (override) 
 This variable will be overridden when the `scaffolding_go_repo_name` is specified, this will allow users to have multi-service projects.
 
+#### `scaffolding_go_build_tags` (new)
+List of build tags to pass to the go compiler. (default: empty)
+
 #### `scaffolding_go_repo_name` (new) 
 The name of the repository. (default: empty)
 
