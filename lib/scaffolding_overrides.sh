@@ -76,7 +76,8 @@ scaffolding_go_before() {
 scaffolding_go_install() {
   if [[ $scaffolding_go_binary_list ]]; then
     for binary in ${scaffolding_go_binary_list[@]}; do
-      local b=$(basename $binary)
+      local b
+      b=$(basename $binary)
       cp -r "${GOBIN}/$b" "${pkg_prefix}/bin/"
     done
   else
