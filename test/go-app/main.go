@@ -2,6 +2,9 @@ package main
 
 import "fmt"
 
+var version string
+
 func main() {
-	fmt.Println("go-app: Hello Chef Friends! :)")
+	msg := fmt.Sprintf("go-app: Hello Chef Friends! :) v.%s", version)
+	fmt.Println(msg)
 }
