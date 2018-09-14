@@ -47,7 +47,7 @@ scaffolding_go_build() {
     fi
 
     if [[ $scaffolding_go_binary_list ]]; then
-      for binary in ${scaffolding_go_binary_list[@]}; do
+      for binary in "${scaffolding_go_binary_list[@]}"; do
         eval "$go_cmd $binary"
       done
     else
@@ -64,7 +64,7 @@ scaffolding_go_before() {
   # @afiune we are overriding this function since we must link the entire
   # repository '/src' to the Go workspace to access other files/components
   # or files. (Multi-service projects)
-  if [ ! $pkg_source ] && [ ! -e $scaffolding_go_pkg_path ]; then
+  if [ ! "$pkg_source" ] && [ ! -e "$scaffolding_go_pkg_path" ]; then
     mkdir -p "$scaffolding_go_workspace_src/$scaffolding_go_base_path"
     ln -sf /src "$scaffolding_go_pkg_path"
   fi
@@ -75,9 +75,9 @@ scaffolding_go_before() {
 # Enable multi-binary and/or multi-service projects
 scaffolding_go_install() {
   if [[ $scaffolding_go_binary_list ]]; then
-    for binary in ${scaffolding_go_binary_list[@]}; do
+    for binary in "${scaffolding_go_binary_list[@]}"; do
       local b
-      b=$(basename $binary)
+      b=$(basename "$binary")
       cp -r "${GOBIN}/$b" "${pkg_prefix}/bin/"
     done
   else

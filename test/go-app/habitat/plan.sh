@@ -18,5 +18,7 @@ scaffolding_go_import_path="${scaffolding_go_base_path}/$scaffolding_go_repo_nam
 
 do_prepare(){
   # Inject flags to the go compiler
-  export GO_LDFLAGS="-X main.version=`date -u +%Y%m%d.%H%M%S`"
+  GO_LDFLAGS="-X main.version=`date -u +%Y%m%d.%H%M%S`"
+  export GO_LDFLAGS
+  build_line "Setting GO_LDFLAGS=$GO_LDFLAGS"
 }
