@@ -25,7 +25,7 @@ scaffolding_load() {
     scaffolding_load
   fi
 
-  # Load the wrapper scaffolding
+  # Load the wrapper scaffolding
   # This is the place where we override any functionality of the base scaffolding
   lib="$(pkg_path_for "$pkg_scaffolding")/lib/scaffolding_overrides.sh"
   build_line "Loading Wrapper Scaffolding $lib"
