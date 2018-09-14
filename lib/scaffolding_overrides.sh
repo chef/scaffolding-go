@@ -1,6 +1,5 @@
 #!/bin/bash
-# shellcheck shell=bash
-
+#
 # This is the place where we can override any functionality of the core scaffolding. (functions, variables, etc.)
 
 # Override do_default_before

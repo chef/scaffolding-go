@@ -1,5 +1,5 @@
-# shellcheck shell=bash
-
+#!/bin/bash
+#
 # ANSI Escape Codes:
 #
 # Just so you can be pretty in your messages :)
