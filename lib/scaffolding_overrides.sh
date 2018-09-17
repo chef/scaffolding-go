@@ -15,10 +15,6 @@ if [[ $scaffolding_go_repo_name ]]; then
   export scaffolding_go_pkg_path="$scaffolding_go_workspace_src/$scaffolding_go_base_path/$scaffolding_go_repo_name"
 fi
 
-# Export GOBIN and add it to the PATH environment variable
-export GOBIN="$scaffolding_go_gopath/bin"
-export PATH="$PATH:$GOBIN"
-
 # Sets the default value when '$scaffolding_go_import_path' is not set
 #
 # This will be useful for multi-binary and/or multi-service projects, you can have a combination
@@ -27,16 +23,32 @@ if [[ ! $scaffolding_go_import_path ]]; then
   export scaffolding_go_import_path=$scaffolding_go_base_path/$pkg_name
 fi
 
+# Export GOBIN and add it to the PATH environment variable
+export GOBIN="$scaffolding_go_gopath/bin"
+export PATH="$PATH:$GOBIN"
+
+# Export the path where the Makefile should be located to use it at build time
+export MAKEFILE_PATH="${scaffolding_go_gopath}/src/${scaffolding_go_import_path}"
 
 #
 # Scaffolding Callback Functions
 #
 
+# Override do_default_build to support build of packages with Makefile
+do_default_build() {
+  if [[ -f "${MAKEFILE_PATH}/Makefile" ]]; then
+    pushd "$MAKEFILE_PATH" >/dev/null
+      make
+    popd >/dev/null
+  else
+    scaffolding_go_build
+  fi
+}
+
 # Override scaffolding_go_build
 #
 # We are giving more flexibility and support to this callback, now we can
 # have projects that are multi-binary and/or multi-service
-# TODO @afiune Support Makefile's
 scaffolding_go_build() {
   # We se this command since it will build and install the binaries
   # automatically into the GOBIN directory
