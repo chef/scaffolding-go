@@ -49,7 +49,7 @@ scaffolding_go_build() {
 
   # Inject Go build tags
   if [[ $scaffolding_go_build_tags ]]; then
-    go_cmd="$go_cmd --tags '${scaffolding_go_build_tags[@]}'"
+    go_cmd="$go_cmd --tags '${scaffolding_go_build_tags[*]}'"
   fi
 
   pushd "$scaffolding_go_pkg_path" >/dev/null
