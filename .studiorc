@@ -1,5 +1,4 @@
 #!/bin/bash
-# shellcheck shell=bash
 
 # Source ci-studio-common helpers
 hab pkg install chef/ci-studio-common
@@ -35,186 +34,52 @@ To test the latest scaffolding-go wrapper:
 
 For faster development cycles use the following helper to build and test a new scaffolding-go package:
 
-  # build_and_test
+  # build_and_test_all
 
 GETTING_STARTED
 
-# build_and_test will build the scaffolding-go and then test it by running a simple Go app
-function build_and_test(){
-  yellow "* Building $HAB_ORIGIN/scaffolding-go package.\n"
+# List of functions with a 'build and test' pattern that will be called from `build_and_test_all' func
+# Create new test cases and add them to the list to automatically run them
+BUILD_AND_TEST_FUNC_LIST=(
+  build_and_test_simple_go_app
+  build_and_test_make_binary_app
+  build_and_test_single_binary_app
+  build_and_test_multi_binary_app
+)
+
+# build_and_test_all will build the scaffolding-go and then test it by building a number of
+# Go apps that are defined inside the environment variable 'BUILD_AND_TEST_FUNC_LIST'
+function build_and_test_all(){
+  local rc
+  yellow "* Building $HAB_ORIGIN/scaffolding-go package.\\n"
   pushd /src >/dev/null
     build
-    local rc=$?
+    rc=$?
   popd >/dev/null
 
-  # Verify the exit code of the package built above
+  # Verify the exit code of the package above built correctly
   if [[ $rc != 0 ]]; then
     return $rc;
   fi
 
-  # Build a simple Go app
-  echo ""
-  build_simple_go_app
-  rc=$?
-  if [[ $rc != 0 ]]; then
-    return $rc;
-  fi
-
-  # Test that the app was built and installed and can be run
-  #
-  # Output should look like:
-  # => go-app: Hello Chef Friends! :) v.20180912.161904
-  echo ""
-  yellow "* Running simple Go application. (go-app)\n"
-  go-app
-  rc=$?
-  if [[ $rc != 0 ]]; then
-    return $rc;
-  fi
-
-  # Build a multi-binary Go app
-  echo ""
-  build_multi_binary_go_app
-  rc=$?
-  if [[ $rc != 0 ]]; then
-    return $rc;
-  fi
-
-  # Test that the app was built and installed and can be run
-  #
-  # ------ Binary 1 (server)
-  # Output should look like:
-  # => multi-binary: Starting app listening on ':9090'. (v.20180913.111142)
-  #
-  # When requests come in, the response should look like:
-  # => {"req_num":1,"status":"processed"}
-  echo ""
-  local response=""
-  verify_or_start_supervisor
-  svc_running $HAB_ORIGIN/multi-binary
-  rc=$?
-  if [[ $rc == 0 ]]; then
-    yellow "* The multi-binary Go application is already running. (serve-app)"
-    green "* To see the logs of the service run 'sup-log'.\n"
-  else
-    start_multi_binary_serve_app
-  fi
-
-  response=$(curl_multi_binary_serve_app)
-  rc=$?
-  if [[ $rc != 0 ]]; then
-    return $rc;
-  fi
-  echo $response | jq .
-
-  # ------ Binary 2 (cli)
-  # Output should look like:
-  # => multi-binary: Running app through the cli. (v.20180912.165542)
-  #    libs: complex stuff happening.
-  echo ""
-  yellow "* Running multi-binary Go application. (cli)\n"
-  cli
-  rc=$?
-  if [[ $rc != 0 ]]; then
-    return $rc;
-  fi
-}
-
-# start_multi_binary_serve_app starts the multi-binary go application through hab-svc commands
-# run 'sup-log' to see the logs
-function start_multi_binary_serve_app() {
-  yellow "* Starting multi-binary Go application. (serve-app)\n"
-  hab svc load $HAB_ORIGIN/multi-binary -s at-once
-  hab start $HAB_ORIGIN/multi-binary
-  wait_or_fail_for_svc_to_load $HAB_ORIGIN/multi-binary 30
-}
-
-# verify_or_start_supervisor verifies if the supervisor is running, if not, it starts it
-function verify_or_start_supervisor(){
-  hab sup status 2>/dev/null 1>&2
-  if [[ $? == 0 ]]; then
-    return 0
-  fi
-  sup-run
-  wait_for_success hab sup status
-}
-
-# curl_multi_binary_serve_app sends a curl request to the running multi-binary go application
-function curl_multi_binary_serve_app() {
-  local response=""
-  local rc=0
-  local address="localhost:9090"
-  install_if_missing core/curl curl
-  install_if_missing core/jq-static jq
-  response=$(curl $address 2>/dev/null)
-  rc=$?
-  if [[ $rc != 0 ]]; then
-    echo "Unable to curl serve app. ($address)"
-    return $rc;
-  fi
-  echo $response
-}
-
-
-# build_simple_go_app builds a simple Go application to test the latest installed scaffolding-go pkg
-function build_simple_go_app() {
-  local pkg_path=$(verify_or_install_scaffolding_go)
-  yellow "* Building simple Go application using latest installed $HAB_ORIGIN/scaffolding-go package."
-  echo -e "$(green "  PKG_PATH:") $pkg_path\n"
-  build /src/test/go-app
-  local rc=$?
-  if [[ $rc != 0 ]]; then
-    return $rc;
-  fi
-
-  # Installing latest go-app
-  echo ""
-  install_latest_go_app
-}
-
-# install_latest_go_app install the latest go-app built
-function install_latest_go_app() {
-  local last_build=$(ls -1tr results/${HAB_ORIGIN}-go-app-* | tail -1)
-  if [[ "$last_build" == "" ]]; then
-    echo -e "$(red "ERROR:") No 'go-app' builds found. Build one with: 'build_simple_go_app'"
-  else
-    hab pkg install -b -f $last_build
-  fi
-}
-
-# build_multi_binary_go_app builds a multi-binary Go application to test the latest installed scaffolding-go pkg
-function build_multi_binary_go_app() {
-  local pkg_path=$(verify_or_install_scaffolding_go)
-  yellow "* Building multi-binary Go application using latest installed $HAB_ORIGIN/scaffolding-go package."
-  echo -e "$(green "  PKG_PATH:") $pkg_path\n"
-  build /src/test/repo/components/multi-binary
-  local rc=$?
-  if [[ $rc != 0 ]]; then
-    return $rc;
-  fi
-
-  # Installing latest multi-binary Go application
-  echo ""
-  install_latest_multi_binary_app
+  for func in "${BUILD_AND_TEST_FUNC_LIST[@]}"; do
+    $func
+    rc=$?
+    if [[ $rc != 0 ]]; then
+      echo -e "$(red "ERROR:") Unable to successfully run function: '$func'. (exitcode: $rc)"
+      return $rc;
+    fi
+  done
 }
 
 # verify_or_install_scaffolding_go verifies if the wrapper scaffolding-go is installed, if not, it builds it and installs it
 function verify_or_install_scaffolding_go() {
-  local pkg_path=$(hab pkg path $HAB_ORIGIN/scaffolding-go 2>/dev/null)
+  local pkg_path
+  pkg_path=$(hab pkg path "$HAB_ORIGIN/scaffolding-go" 2>/dev/null)
   if [[ "$pkg_path" == "" ]]; then
     echo -e "$(yellow "WARN:") Package $HAB_ORIGIN/scaffolding-go not found, building a fresh one."
     build
-    pkg_path=$(hab pkg path $HAB_ORIGIN/scaffolding-go 2>/dev/null)
+    pkg_path=$(hab pkg path "$HAB_ORIGIN/scaffolding-go" 2>/dev/null)
   fi
-  echo $pkg_path
-}
-
-# install_latest_multi_binary_app install the latest multi-binary Go application built
-function install_latest_multi_binary_app() {
-  local last_build=$(ls -1tr results/${HAB_ORIGIN}-multi-binary-* | tail -1)
-  if [[ "$last_build" == "" ]]; then
-    echo -e "$(red "ERROR:") No 'multi-binary' builds found. Build one with: 'build_multi_binary_go_app'"
-  else
-    hab pkg install -b -f $last_build
-  fi
+  echo "$pkg_path"
 }

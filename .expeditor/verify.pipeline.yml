@@ -12,10 +12,9 @@ steps:
     command:
       - aws-configure chef-cd
       - AWS_PROFILE=chef-cd hab-origin download-sig-key "\$HAB_ORIGIN"
-      - hab studio -D \$STUDIO_OPTS run "source .studiorc && build_and_test"
+      - hab studio -D \$STUDIO_OPTS run "source .studiorc && build_and_test_all"
     env:
       HAB_ORIGIN: chef
-      HAB_STUDIO_SUP: false
     agents:
       queue: 'docker-privileged'
     timeout_in_minutes: 10

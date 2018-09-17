@@ -31,3 +31,12 @@ function green() {
 function blue() {
   echo -e "${BLUE}$1${NC}"
 }
+
+# verify_or_start_supervisor verifies if the supervisor is running, if not, it starts it
+function verify_or_start_supervisor() {
+  if hab sup status 2>/dev/null 1>&2; then
+    return 0
+  fi
+  sup-run
+  wait_for_success hab sup status
+}
