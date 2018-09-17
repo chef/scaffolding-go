@@ -101,7 +101,7 @@ function build_multi_binary_app() {
 # install_latest_multi_binary_app install the latest multi-binary Go application built
 function install_latest_multi_binary_app() {
   local last_build
-  last_build=$(ls -1t "results/${HAB_ORIGIN}-multi-binary-"* | head -1)
+  last_build=$(find /src/results -name "${HAB_ORIGIN}-multi-binary-*" | sort | tail -1)
   if [[ "$last_build" == "" ]]; then
     echo -e "$(red "ERROR:") No 'multi-binary' builds found. Build one with: 'build_multi_binary_app'"
   else

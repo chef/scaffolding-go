@@ -47,7 +47,7 @@ function build_make_binary_app() {
 # install_latest_make_binary_app install the latest make-binary built
 function install_latest_make_binary_app() {
   local last_build
-  last_build=$(ls -1t "results/${HAB_ORIGIN}-make-binary-"* | head -1)
+  last_build=$(find /src/results -name "${HAB_ORIGIN}-make-binary-*" | sort | tail -1)
   if [[ "$last_build" == "" ]]; then
     echo -e "$(red "ERROR:") No 'make-binary' builds found. Build one with: 'build_make_binary_app'"
   else

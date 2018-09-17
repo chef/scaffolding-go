@@ -50,7 +50,7 @@ function build_single_binary_app() {
 # install_latest_single_binary_app install the latest single-binary Go application built
 function install_latest_single_binary_app() {
   local last_build
-  last_build=$(ls -1t "results/${HAB_ORIGIN}-single-binary-"* | head -1)
+  last_build=$(find /src/results -name "${HAB_ORIGIN}-single-binary-*" | sort | tail -1)
   if [[ "$last_build" == "" ]]; then
     echo -e "$(red "ERROR:") No 'single-binary' builds found. Build one with: 'build_single_binary_app'"
   else

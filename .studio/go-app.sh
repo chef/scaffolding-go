@@ -47,7 +47,7 @@ function build_simple_go_app() {
 # install_latest_simple_go_app install the latest go-app built
 function install_latest_simple_go_app() {
   local last_build
-  last_build=$(ls -1t "results/${HAB_ORIGIN}-go-app-"* | head -1)
+  last_build=$(find /src/results -name "${HAB_ORIGIN}-go-app-*" | sort | tail -1)
   if [[ "$last_build" == "" ]]; then
     echo -e "$(red "ERROR:") No 'go-app' builds found. Build one with: 'build_simple_go_app'"
   else
