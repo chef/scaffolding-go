@@ -1,6 +1,5 @@
 #!/bin/bash
-# shellcheck shell=bash
-
+#
 # Wrapping the core Go scaffolding (Base)
 #
 # The concept of 'Wrapper Scaffolding' doens't exist perse but here we are trying to
@@ -15,7 +14,8 @@
 scaffolding_load() {
   # Load the base scaffolding that we want to wrap
   # TODO @afiune Find a way to define a 'pkg_abc' variable in plan.sh (pkg_scaffolding_base?)
-  local lib="$(pkg_path_for "core/scaffolding-go")/lib/scaffolding.sh"
+  local lib
+  lib="$(pkg_path_for "core/scaffolding-go")/lib/scaffolding.sh"
   build_line "Loading Base Scaffolding $lib"
   if ! source "$lib"; then
     exit_with "Failed to load Base Scaffolding from $lib" 17
@@ -25,16 +25,16 @@ scaffolding_load() {
     scaffolding_load
   fi
 
-  # Load the wrapper scaffolding
+  # Load the wrapper scaffolding
   # This is the place where we override any functionality of the base scaffolding
-  lib="$(pkg_path_for $pkg_scaffolding)/lib/scaffolding_overrides.sh"
+  lib="$(pkg_path_for "$pkg_scaffolding")/lib/scaffolding_overrides.sh"
   build_line "Loading Wrapper Scaffolding $lib"
   if ! source "$lib"; then
     exit_with "Failed to load Wrapper Scaffolding from $lib" 17
   fi
 
   # Load this file again to override the 'scaffolding_load' function
-  lib="$(pkg_path_for $pkg_scaffolding)/lib/scaffolding.sh"
+  lib="$(pkg_path_for "$pkg_scaffolding")/lib/scaffolding.sh"
   if ! source "$lib"; then
     exit_with "Failed to load Wrapper Scaffolding from $lib" 17
   fi

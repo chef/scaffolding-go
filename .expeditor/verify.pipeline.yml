@@ -1,4 +1,13 @@
 steps:
+  - label: "Syntax"
+    command:
+      - apt-get update
+      - apt-get install -y shellcheck
+      - find . -name '*.sh' -print0 | xargs -0 -n1 shellcheck -e SC2034,SC2154 -s bash
+    plugins:
+      docker#v1.1.1:
+        image: ubuntu:16.04
+        workdir: /scaffolding-go
   - label: "Build & Test"
     command:
       - aws-configure chef-cd

@@ -1,6 +1,5 @@
 #!/bin/bash
-# shellcheck shell=bash
-
+#
 # This is the place where we can override any functionality of the core scaffolding. (functions, variables, etc.)
 
 #
@@ -37,7 +36,7 @@ fi
 #
 # We are giving more flexibility and support to this callback, now we can
 # have projects that are multi-binary and/or multi-service
-# TODO @afiune Support Makefile's
+# TODO @afiune Support Makefile's
 scaffolding_go_build() {
   # We se this command since it will build and install the binaries
   # automatically into the GOBIN directory
@@ -50,7 +49,7 @@ scaffolding_go_build() {
 
   # Inject Go build tags
   if [[ $scaffolding_go_build_tags ]]; then
-    go_cmd="$go_cmd --tags '${scaffolding_go_build_tags[@]}'"
+    go_cmd="$go_cmd --tags '${scaffolding_go_build_tags[*]}'"
   fi
 
   pushd "$scaffolding_go_pkg_path" >/dev/null

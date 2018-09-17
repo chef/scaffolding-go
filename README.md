@@ -33,10 +33,10 @@ Use this variable to define the list of binaries to build, for an example look a
 The following callbacks have been added or modified:
 
 #### `scaffolding_go_build` (override)
-We are giving more flexibility and support to this callback, now we can build multi-binary and/or multi-service projects.
+We are giving more flexibility and support to this callback. Now we can build multi-binary and/or multi-service projects.
 
 #### `scaffolding_go_install` (override)
-We are giving more flexibility and support to this callback, now we can build multi-binary and/or multi-service projects.
+We are giving more flexibility and support to this callback. Now we can build multi-binary and/or multi-service projects.
 
 #### `scaffolding_go_before` (override)
-We are overriding this function to link the entire repository inside the studio (`/src`) to the Go workspace so that we can access other files, components, libraries or files. (Multi-service projects)
+We are overriding this function to link the entire repository inside the studio (`/src`) to the Go workspace so that we can access multiple components, libraries and other files. (Multi-service projects)
