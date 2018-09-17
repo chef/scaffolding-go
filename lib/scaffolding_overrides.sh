@@ -36,7 +36,7 @@ fi
 #
 # We are giving more flexibility and support to this callback, now we can
 # have projects that are multi-binary and/or multi-service
-# TODO @afiune Support Makefile's
+# TODO @afiune Support Makefile's
 scaffolding_go_build() {
   # We se this command since it will build and install the binaries
   # automatically into the GOBIN directory
