@@ -25,8 +25,3 @@ merge_actions:
       post_commit: true
       ignore_labels:
         - "Habitat: Skip Build"
-
-promote:
-  action:
-    - bash:.expeditor/promote-hab-pkg.sh:
-        post_commit: true
