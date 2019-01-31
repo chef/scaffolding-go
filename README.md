@@ -40,3 +40,4 @@ We are giving more flexibility and support to this callback. Now we can build mu
 
 #### `scaffolding_go_before` (override)
 We are overriding this function to link the entire repository inside the studio (`/src`) to the Go workspace so that we can access multiple components, libraries and other files. (Multi-service projects)
+
