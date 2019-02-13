@@ -1,23 +1,23 @@
 steps:
   - label: "Syntax"
     command:
-      - apt-get update
-      - apt-get install -y shellcheck
       - find . -name '*.sh' -print0 | xargs -0 -n1 shellcheck -e SC2034,SC2154 -s bash
-    plugins:
-      docker#v1.1.1:
-        image: ubuntu:16.04
-        workdir: /scaffolding-go
+    expeditor:
+      executor:
+        docker:
+
   - label: "Build & Test"
     command:
       - hab origin key generate chef
-      - hab studio -D run "source .studiorc && build_and_test"
+      - hab studio run "source .studiorc && build_and_test"
     env:
       HAB_ORIGIN: chef
       HAB_STUDIO_SUP: false
-    agents:
-      queue: 'docker-privileged'
     timeout_in_minutes: 10
     retry:
       automatic:
         limit: 3
+    expeditor:
+      executor:
+        docker:
+          privileged: true
