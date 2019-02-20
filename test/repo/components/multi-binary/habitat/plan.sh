@@ -18,10 +18,13 @@ scaffolding_go_binary_list=(
   "${scaffolding_go_import_path}/cmd/cli"
 )
 
+pkg_deps=(
+    core/bash
+)
+
 do_prepare(){
   # Inject flags to the go compiler
   GO_LDFLAGS=" -X $scaffolding_go_import_path/config.VERSION=$(date -u +%Y%m%d.%H%M%S)"
   export GO_LDFLAGS
   build_line "Setting GO_LDFLAGS=$GO_LDFLAGS"
 }
-

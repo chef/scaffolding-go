@@ -52,7 +52,7 @@ scaffolding_go_build() {
     go_cmd="$go_cmd --tags '${scaffolding_go_build_tags[*]}'"
   fi
 
-  pushd "$scaffolding_go_pkg_path" >/dev/null
+  pushd "$scaffolding_go_pkg_path" >/dev/null || return 1
     if [[ $scaffolding_go_binary_list ]]; then
       for binary in "${scaffolding_go_binary_list[@]}"; do
         eval "$go_cmd $binary"
@@ -60,7 +60,7 @@ scaffolding_go_build() {
     else
       eval "$go_cmd $scaffolding_go_import_path"
     fi
-  popd >/dev/null
+  popd >/dev/null || return 1
 }
 
 # Override scaffolding_go_before
