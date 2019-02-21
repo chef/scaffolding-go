@@ -1,5 +1,8 @@
 #!/bin/bash
-#
+
+#shellcheck disable=SC2034
+#shellcheck disable=SC2154
+
 # Wrapping the core Go scaffolding (Base)
 #
 # The concept of 'Wrapper Scaffolding' doens't exist perse but here we are trying to
