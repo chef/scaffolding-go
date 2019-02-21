@@ -5,6 +5,8 @@ The concept of **"Wrapper Scaffolding"** doesn't exist perse but here we are try
 
 # Extended functionalities
 
+By default the scaffolding will attempt to build all binaries statically and verify that they are statically built if the `DO_CHECK` environment variable is set at build time.
+
 ## Variables
 The following variable have been added or modified:
 
@@ -29,6 +31,9 @@ Array of binaries to build. (default: empty)
 
 Use this variable to define the list of binaries to build, for an example look at the following **multi-binary** go application: https://github.com/chef/scaffolding-go/tree/master/test/repo/components/multi-binary
 
+#### `scaffolding_go_no_static` (new)
+Disable bulding and verifying that go binaries are statically linked. If this variable is set CGO will not be disabled, external linkers will not be passed static flags, and native go backend build tags will not be passed.
+
 ## Callbacks
 The following callbacks have been added or modified:
 
@@ -41,3 +46,5 @@ We are giving more flexibility and support to this callback. Now we can build mu
 #### `scaffolding_go_before` (override)
 We are overriding this function to link the entire repository inside the studio (`/src`) to the Go workspace so that we can access multiple components, libraries and other files. (Multi-service projects)
 
+#### `scaffolding_go_do_check_static_build` (new)
+A habitat build time check to be called in the `do_check` callback. It verifies that all go binaries that are built do not dynamically load libraries. If the parent plan has define a `do_check` callback or set the `scaffolding_go_no_static` variable it will be skipped.
