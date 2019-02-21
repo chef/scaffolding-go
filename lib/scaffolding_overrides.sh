@@ -45,20 +45,21 @@ scaffolding_go_build() {
 
   # Default to a static build unless the user plan has defined the
   # scaffolding_go_no_static variable.
-  if ! [[ $scaffolding_go_no_static ]]; then
+  if [[ -z $scaffolding_go_no_static ]]; then
     # Go doesn't currently have an "easy" way to enforce static builds. Until the
-    # proposed `-static` flag is added to go-build/go-install we'll need to add
-    # the proper environment variables, ldflags and tags.
+    # proposed `-static` flag is added to go-build/go-install, we'll need to add
+    # the proper environment variables, ldflags and tags to have reasonable
+    # assurance that our build will be static.
     build_line "Configuring static build"
 
     # We assume no CGO here. While we could probably go to some length to leave
     # CGO enabled and use musl, it's probably best for projects that would need
-    # must to override this hook and build it as necessary.
+    # musl to override this hook and build it as necessary.
     go_cmd="CGO_ENABLED=0 $go_cmd"
 
     GO_LDFLAGS="$GO_LDFLAGS -extldflags \"-fno-PIC -static\""
 
-    if ! [[ $scaffolding_go_build_tags ]]; then
+    if [[ -z $scaffolding_go_build_tags ]]; then
       declare -a scaffolding_go_build_tags=()
     fi
     scaffolding_go_build_tags+=('osusergo netgo static_build')
@@ -67,7 +68,7 @@ scaffolding_go_build() {
         echo "$i";
       done | uniq
     )
-    scaffolding_go_build_tags=(unique_tags)
+    scaffolding_go_build_tags=("$unique_tags")
   fi
 
   # Inject Go ldflags
