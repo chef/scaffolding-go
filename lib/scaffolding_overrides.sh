@@ -1,5 +1,8 @@
 #!/bin/bash
-#
+
+#shellcheck disable=SC2034
+#shellcheck disable=SC2154
+
 # This is the place where we can override any functionality of the core scaffolding. (functions, variables, etc.)
 
 #
@@ -38,9 +41,34 @@ fi
 # have projects that are multi-binary and/or multi-service
 # TODO @afiune Support Makefile's
 scaffolding_go_build() {
-  # We se this command since it will build and install the binaries
-  # automatically into the GOBIN directory
   local go_cmd="go install"
+
+  # Default to a static build unless the user plan has defined the
+  # scaffolding_go_no_static variable.
+  if ! [[ $scaffolding_go_no_static ]]; then
+    # Go doesn't currently have an "easy" way to enforce static builds. Until the
+    # proposed `-static` flag is added to go-build/go-install we'll need to add
+    # the proper environment variables, ldflags and tags.
+    build_line "Configuring static build"
+
+    # We assume no CGO here. While we could probably go to some length to leave
+    # CGO enabled and use musl, it's probably best for projects that would need
+    # must to override this hook and build it as necessary.
+    go_cmd="CGO_ENABLED=0 $go_cmd"
+
+    GO_LDFLAGS="$GO_LDFLAGS -extldflags \"-fno-PIC -static\""
+
+    if ! [[ $scaffolding_go_build_tags ]]; then
+      declare -a scaffolding_go_build_tags=()
+    fi
+    scaffolding_go_build_tags+=('osusergo netgo static_build')
+    unique_tags=$(
+      for i in "${scaffolding_go_build_tags[@]}"; do
+        echo "$i";
+      done | uniq
+    )
+    scaffolding_go_build_tags=(unique_tags)
+  fi
 
   # Inject Go ldflags
   if [[ $GO_LDFLAGS ]]; then
@@ -48,9 +76,11 @@ scaffolding_go_build() {
   fi
 
   # Inject Go build tags
-  if [[ $scaffolding_go_build_tags ]]; then
+  if [[ ${scaffolding_go_build_tags[*]} ]]; then
     go_cmd="$go_cmd --tags '${scaffolding_go_build_tags[*]}'"
   fi
+
+  build_line "Using Build Command: $go_cmd"
 
   pushd "$scaffolding_go_pkg_path" >/dev/null || return 1
     if [[ $scaffolding_go_binary_list ]]; then
@@ -90,4 +120,35 @@ scaffolding_go_install() {
   else
     cp -r "${GOBIN}/$pkg_name" "${pkg_prefix}/bin/"
   fi
+}
+
+
+# Set a default do_check if it does not exist
+if ! type -t do_check; then
+  do_check() {
+    scaffolding_go_do_check_static_build
+  }
+fi
+
+# Ensure that the go binaries are static
+scaffolding_go_do_check_static_build() {
+  if ! [[ $scaffolding_go_no_static ]]; then
+    check_static_binary() {
+      build_line "Checking for dynamic links in $1"
+      if ! ldd "$1" | grep "not a dynamic executable"; then
+          exit_with "${binary} is not a static executable" 1
+      fi
+    }
+
+    if [[ $scaffolding_go_binary_list ]]; then
+      for binary in "${scaffolding_go_binary_list[@]}"; do
+        base=$(basename "$binary")
+        check_static_binary "${GOBIN}/${base}"
+      done
+    else
+      check_static_binary "${GOBIN}/$pkg_name"
+    fi
+  fi
+
+  return 0
 }
