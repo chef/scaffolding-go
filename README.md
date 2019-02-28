@@ -48,3 +48,4 @@ We are overriding this function to link the entire repository inside the studio 
 
 #### `scaffolding_go_do_check_static_build` (new)
 A habitat build time check to be called in the `do_check` callback. It verifies that all go binaries that are built do not dynamically load libraries. If the parent plan has define a `do_check` callback or set the `scaffolding_go_no_static` variable it will be skipped.
+
