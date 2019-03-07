@@ -5,8 +5,8 @@
 
 # Wrapping the core Go scaffolding (Base)
 #
-# The concept of 'Wrapper Scaffolding' doens't exist perse but here we are trying to
-# define how should it look like.
+# The concept of 'Wrapper Scaffolding' doesn't exist per se but here
+# we are trying to define what it should look like.
 #
 # This function is loading the parent core go scaffolding first, all callbacks, variables
 # and customizations. Then it will load this new wrapper scaffolding that will override
