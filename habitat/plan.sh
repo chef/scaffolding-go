@@ -29,6 +29,6 @@ do_download() {
 
 # Install scaffolding libraries from the plan into the package.
 do_install() {
-  install -D -m 0644 "$PLAN_CONTEXT/lib/scaffolding.sh" "$pkg_prefix/lib/scaffolding.sh"
-  install -D -m 0644 "$PLAN_CONTEXT/lib/scaffolding_overrides.sh" "$pkg_prefix/lib/scaffolding_overrides.sh"
+  install -D -m 0644 "$PLAN_CONTEXT/../lib/scaffolding.sh" "$pkg_prefix/lib/scaffolding.sh"
+  install -D -m 0644 "$PLAN_CONTEXT/../lib/scaffolding_overrides.sh" "$pkg_prefix/lib/scaffolding_overrides.sh"
 }

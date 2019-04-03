@@ -6,9 +6,6 @@ slack:
 github:
   delete_branch_on_merge: true
 
-habitat_packages:
-  - scaffolding-go
-
 promote:
   channels:
     - unstable
@@ -19,9 +16,10 @@ promote:
 pipelines:
   - verify:
       description: Pull Request validation tests
+  - habitat/build
 
 merge_actions:
-  - built_in:trigger_habitat_package_build:
+  - trigger_pipeline:habitat/build:
       post_commit: true
       ignore_labels:
         - "Habitat: Skip Build"
