@@ -7,7 +7,7 @@ pkg_license=('Chef-MLSA')
 pkg_source=nosuchfile.tar.gz
 pkg_upstream_url="https://github.com/chef/scaffolding-go"
 pkg_deps=(
-  core/scaffolding-go
+  core/scaffolding-go/0.1.0
   core/grep
 )
 
