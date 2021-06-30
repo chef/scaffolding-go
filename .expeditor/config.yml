@@ -6,20 +6,23 @@ slack:
 github:
   delete_branch_on_merge: true
 
-promote:
-  channels:
-    - unstable
-    - stable
-  actions:
-    - built_in:promote_habitat_packages
+artifact_channels:
+  - unstable
+  - stable
 
 pipelines:
   - verify:
       description: Pull Request validation tests
   - habitat/build
 
-merge_actions:
-  - trigger_pipeline:habitat/build:
-      post_commit: true
-      ignore_labels:
-        - "Habitat: Skip Build"
+subscriptions:
+  - workload: pull_request_merged:{{github_repo}}:{{release_branch}}:*
+    actions:
+      - trigger_pipeline:habitat/build:
+          post_commit: true
+          ignore_labels:
+            - "Habitat: Skip Build"
+            
+  - workload: project_promoted:{{agent_id}}:*
+    actions:
+      - built_in:promote_habitat_packages
